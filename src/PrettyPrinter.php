@@ -8,9 +8,17 @@ use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\TextUI\ResultPrinter;
 use PHPUnit\Util\Filter;
+use UnexpectedValueException;
 
 class PrettyPrinter extends ResultPrinter implements TestListener
 {
+
+    const STATE_SUCCESS    = '.';
+    const STATE_FAILED     = 'F';
+    const STATE_ERROR      = 'E';
+    const STATE_RISKY      = 'R';
+    const STATE_SKIPPED    = 'S';
+    const STATE_INCOMPLETE = 'I';
 
     /**
      * @var string
@@ -21,6 +29,13 @@ class PrettyPrinter extends ResultPrinter implements TestListener
      * @var string|null
      */
     protected $previousClassName;
+
+    /**
+     * See STATE_ constants.
+     *
+     * @var string
+     */
+    protected $previousState;
 
 
     public function startTestSuite(TestSuite $suite): void
@@ -39,12 +54,17 @@ class PrettyPrinter extends ResultPrinter implements TestListener
 
         $name = $this->makeFriendlyTestNameString($test);
 
-        $color = 'fg-green';
-        if ($test->getStatus() !== 0) {
-            $color = 'fg-red';
-        }
+        $color = $this->getColorStringForState($this->previousState);
 
         $this->write(' ');
+
+        $stateString = $this->getFriendlyStateString($this->previousState);
+        if ($stateString) {
+            $this->writeWithColor('fg-white', '[', false);
+            $this->writeWithColor($color, $stateString, false);
+            $this->writeWithColor('fg-white', ']  ', false);
+        }
+
         $this->writeWithColor($color, $name, false);
         $this->write(' ');
 
@@ -81,32 +101,108 @@ class PrettyPrinter extends ResultPrinter implements TestListener
 
         $this->previousClassName = $this->className;
 
-        switch (strtoupper($progress)) {
 
-            case '.':
-                $this->writeWithColor('fg-green', '  ✓', false);
+        $normalizedProgressState = strtoupper($this->filterColorCodes($progress));
+
+        $this->previousState = $normalizedProgressState;
+
+        $stateColor = $this->getColorStringForState($normalizedProgressState);
+
+        switch ($normalizedProgressState) {
+
+            case static::STATE_SUCCESS:
+                $this->writeWithColor($stateColor, '  ✓', false);
                 break;
 
-            case 'S':
-                $this->writeWithColor('fg-yellow', '  S', false);
+            case static::STATE_SKIPPED:
+                $this->writeWithColor($stateColor, '  -', false);
                 break;
 
-            case 'I':
-                $this->writeWithColor('fg-yellow', '  I', false);
+            case static::STATE_INCOMPLETE:
+                $this->writeWithColor($stateColor, '  -', false);
                 break;
 
-            case 'F':
-                $this->writeWithColor('fg-red', '  F', false);
+            case static::STATE_FAILED:
+                $this->writeWithColor($stateColor, '  x', false);
                 break;
 
-            case 'E':
-                $this->writeWithColor('fg-red', '  E', false);
+            case static::STATE_ERROR:
+                $this->writeWithColor($stateColor, '  x', false);
                 break;
 
-            case 'R':
-                $this->writeWithColor('fg-magenta', '  R', false);
+            case static::STATE_RISKY:
+                $this->writeWithColor($stateColor, '  -', false);
                 break;
         }
+    }
+
+    /**
+     * @param string $state
+     * @return string
+     */
+    protected function getColorStringForState($state)
+    {
+        switch ($state) {
+
+            case static::STATE_SUCCESS:
+                return 'fg-green';
+
+            case static::STATE_SKIPPED:
+                return 'fg-yellow';
+
+            case static::STATE_INCOMPLETE:
+                return 'fg-yellow';
+
+            case static::STATE_FAILED:
+                return 'fg-red';
+
+            case static::STATE_ERROR:
+                return 'fg-red';
+
+            case static::STATE_RISKY:
+                return 'fg-magenta';
+        }
+
+        throw new UnexpectedValueException("Unknown progress state: '{$state}'");
+    }
+
+    /**
+     * @param string $state
+     * @return string
+     */
+    protected function getFriendlyStateString($state)
+    {
+        switch ($state) {
+
+            case static::STATE_SUCCESS:
+                return '';
+
+            case static::STATE_SKIPPED:
+                return 'skipped';
+
+            case static::STATE_INCOMPLETE:
+                return 'incomplete';
+
+            case static::STATE_FAILED:
+                return 'FAILED';
+
+            case static::STATE_ERROR:
+                return 'ERROR';
+
+            case static::STATE_RISKY:
+                return 'risky';
+        }
+
+        throw new UnexpectedValueException("Unknown progress state: '{$state}'");
+    }
+
+    /**
+     * @param string $string
+     * @return string
+     */
+    protected function filterColorCodes($string)
+    {
+        return preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $string);
     }
 
     protected function printDefectTrace(TestFailure $defect): void
