@@ -16,9 +16,10 @@ class PrettyPrinter extends ResultPrinter implements TestListener
     const STATE_SUCCESS    = '.';
     const STATE_FAILED     = 'F';
     const STATE_ERROR      = 'E';
-    const STATE_RISKY      = 'R';
+    const STATE_WARNING    = 'W';
     const STATE_SKIPPED    = 'S';
     const STATE_INCOMPLETE = 'I';
+    const STATE_RISKY      = 'R';
 
     /**
      * @var string
@@ -114,11 +115,11 @@ class PrettyPrinter extends ResultPrinter implements TestListener
                 $this->writeWithColor($stateColor, '  ✓', false);
                 break;
 
-            case static::STATE_SKIPPED:
-                $this->writeWithColor($stateColor, '  -', false);
-                break;
 
             case static::STATE_INCOMPLETE:
+            case static::STATE_RISKY:
+            case static::STATE_SKIPPED:
+            case static::STATE_WARNING:
                 $this->writeWithColor($stateColor, '  -', false);
                 break;
 
@@ -128,10 +129,6 @@ class PrettyPrinter extends ResultPrinter implements TestListener
 
             case static::STATE_ERROR:
                 $this->writeWithColor($stateColor, '  x', false);
-                break;
-
-            case static::STATE_RISKY:
-                $this->writeWithColor($stateColor, '  -', false);
                 break;
         }
     }
@@ -147,10 +144,10 @@ class PrettyPrinter extends ResultPrinter implements TestListener
             case static::STATE_SUCCESS:
                 return 'fg-green';
 
-            case static::STATE_SKIPPED:
-                return 'fg-yellow';
 
             case static::STATE_INCOMPLETE:
+            case static::STATE_SKIPPED:
+            case static::STATE_WARNING:
                 return 'fg-yellow';
 
             case static::STATE_FAILED:
@@ -188,6 +185,9 @@ class PrettyPrinter extends ResultPrinter implements TestListener
 
             case static::STATE_ERROR:
                 return 'ERROR';
+
+            case static::STATE_WARNING:
+                return 'warning';
 
             case static::STATE_RISKY:
                 return 'risky';
