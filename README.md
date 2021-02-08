@@ -2,6 +2,10 @@
 
 Custom styled PHPUnit print output for testing our projects.
 
+### Compatibility
+
+Use `^0.9` for PHPUnit < 9; and `^1.0` PHPUnit 9+.
+
 ### Install
 
 ```bash

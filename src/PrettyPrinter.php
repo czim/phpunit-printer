@@ -4,13 +4,12 @@ namespace Czim\PHPUnitPrinter;
 
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestFailure;
-use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
-use PHPUnit\TextUI\ResultPrinter;
+use PHPUnit\TextUI\DefaultResultPrinter;
 use PHPUnit\Util\Filter;
 use UnexpectedValueException;
 
-class PrettyPrinter extends ResultPrinter implements TestListener
+class PrettyPrinter extends DefaultResultPrinter
 {
     public const STATE_SUCCESS    = '.';
     public const STATE_FAILED     = 'F';
