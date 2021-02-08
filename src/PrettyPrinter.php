@@ -12,14 +12,13 @@ use UnexpectedValueException;
 
 class PrettyPrinter extends ResultPrinter implements TestListener
 {
-
-    const STATE_SUCCESS    = '.';
-    const STATE_FAILED     = 'F';
-    const STATE_ERROR      = 'E';
-    const STATE_WARNING    = 'W';
-    const STATE_SKIPPED    = 'S';
-    const STATE_INCOMPLETE = 'I';
-    const STATE_RISKY      = 'R';
+    public const STATE_SUCCESS    = '.';
+    public const STATE_FAILED     = 'F';
+    public const STATE_ERROR      = 'E';
+    public const STATE_WARNING    = 'W';
+    public const STATE_SKIPPED    = 'S';
+    public const STATE_INCOMPLETE = 'I';
+    public const STATE_RISKY      = 'R';
 
     /**
      * @var string
@@ -86,7 +85,6 @@ class PrettyPrinter extends ResultPrinter implements TestListener
         $this->numTestsRun++;
 
         if ($this->previousClassName !== $this->className) {
-
             $this->writeNewLine();
 
             $this->writeWithColor('fg-white', '[ ', false);
@@ -110,7 +108,6 @@ class PrettyPrinter extends ResultPrinter implements TestListener
         $stateColor = $this->getColorStringForState($normalizedProgressState);
 
         switch ($normalizedProgressState) {
-
             case static::STATE_SUCCESS:
                 $this->writeWithColor($stateColor, '  ✓', false);
                 break;
@@ -124,23 +121,15 @@ class PrettyPrinter extends ResultPrinter implements TestListener
                 break;
 
             case static::STATE_FAILED:
-                $this->writeWithColor($stateColor, '  x', false);
-                break;
-
             case static::STATE_ERROR:
                 $this->writeWithColor($stateColor, '  x', false);
                 break;
         }
     }
 
-    /**
-     * @param string $state
-     * @return string
-     */
-    protected function getColorStringForState($state)
+    protected function getColorStringForState(string $state): string
     {
         switch ($state) {
-
             case static::STATE_SUCCESS:
                 return 'fg-green';
 
@@ -150,11 +139,10 @@ class PrettyPrinter extends ResultPrinter implements TestListener
             case static::STATE_WARNING:
                 return 'fg-yellow';
 
+            case static::STATE_ERROR:
             case static::STATE_FAILED:
                 return 'fg-red';
 
-            case static::STATE_ERROR:
-                return 'fg-red';
 
             case static::STATE_RISKY:
                 return 'fg-magenta';
@@ -163,14 +151,9 @@ class PrettyPrinter extends ResultPrinter implements TestListener
         throw new UnexpectedValueException("Unknown progress state: '{$state}'");
     }
 
-    /**
-     * @param string $state
-     * @return string
-     */
-    protected function getFriendlyStateString($state)
+    protected function getFriendlyStateString(string $state): string
     {
         switch ($state) {
-
             case static::STATE_SUCCESS:
                 return '';
 
@@ -196,11 +179,7 @@ class PrettyPrinter extends ResultPrinter implements TestListener
         throw new UnexpectedValueException("Unknown progress state: '{$state}'");
     }
 
-    /**
-     * @param string $string
-     * @return string
-     */
-    protected function filterColorCodes($string)
+    protected function filterColorCodes(string $string): string
     {
         return preg_replace('#\\x1b[[][^A-Za-z]*[A-Za-z]#', '', $string);
     }
@@ -229,7 +208,7 @@ class PrettyPrinter extends ResultPrinter implements TestListener
         }
     }
 
-    protected function formatExceptionMsg($exceptionMessage): string
+    protected function formatExceptionMsg(string $exceptionMessage): string
     {
         $exceptionMessage = str_replace("+++ Actual\n", '', $exceptionMessage);
         $exceptionMessage = str_replace("--- Expected\n", '', $exceptionMessage);
