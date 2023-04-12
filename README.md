@@ -4,7 +4,12 @@ Custom styled PHPUnit print output for testing our projects.
 
 ### Compatibility
 
-Use `^0.9` for PHPUnit < 9; and `^1.0` PHPUnit 9+.
+| PHPUnit version | Package version |
+|-----------------|-----------------|
+| < 9             | 0.9             |
+| 9               | 1.0             |
+| 10              | 2.0             |
+
 
 ### Install
 
@@ -12,19 +17,28 @@ Use `^0.9` for PHPUnit < 9; and `^1.0` PHPUnit 9+.
 composer require czim/phpunit-printer --dev
 ```
 
+
 ### Usage
 
-You can specify the printer to use on the phpunit command line:
-
-```bash
-php vendor/bin/phpunit --printer 'Czim\PHPUnitPrinter\PrettyPrinter' tests/
-```
-
-Optionally, you can add it to your project's `phpunit.xml` file instead:
+You can add the package extension to your project's `phpunit.xml` file:
 
 ```xml
-<phpunit
-    ...
-    printerClass="Czim\PHPUnitPrinter\PrettyPrinter">
-    ...
+<phpunit>
+    <!-- ... -->
+
+    <extensions>
+        <bootstrap class="Czim\PHPUnitPrinter\PrintExtension"/>
+    </extensions>
+    
+    <!-- ... -->
+</phpunit>
 ```
+
+Then you can run with only the new custom output by hiding the default progress:
+
+```bash
+vendor/bin/phpunit --no-progress
+```
+
+You can also run it with normal progress. The custom formatting will be displayed directly after
+the normal progress indicators when all tests are finished.
