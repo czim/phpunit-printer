@@ -24,6 +24,8 @@ class DelayedPrinter implements PrinterInterface
 
     public function finalize(): void
     {
+        $this->printer->print(PHP_EOL);
+
         foreach ($this->lines as $line) {
             $this->printer->print($line);
         }
